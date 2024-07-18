@@ -3,13 +3,35 @@ package main
 import (
 	"html/template"
 	"path/filepath"
+	"time"
 
 	"github.com/ErickMachado/snippetbox/internal/models"
 )
 
+func humanDate(t time.Time) string {
+	return t.Format("02 Jan 2006 at 15:04")
+}
+
+func brazillianDate(t time.Time) (time.Time, error) {
+	loc, err := time.LoadLocation("America/Sao_Paulo")
+	if err != nil {
+		return time.Time{}, err
+	}
+
+	locTime := t.In(loc)
+
+	return locTime, nil
+}
+
+var functions = template.FuncMap{
+	"humanDate":      humanDate,
+	"brazillianDate": brazillianDate,
+}
+
 type templateData struct {
-	Snippet  models.Snippet
-	Snippets []models.Snippet
+	Snippet     models.Snippet
+	Snippets    []models.Snippet
+	CurrentYear int
 }
 
 func newTemplateCache() (map[string]*template.Template, error) {
@@ -20,7 +42,9 @@ func newTemplateCache() (map[string]*template.Template, error) {
 	}
 
 	for _, page := range pages {
-		ts, err := template.ParseFiles("./ui/html/base.tmpl")
+		name := filepath.Base(page)
+
+		ts, err := template.New(name).Funcs(functions).ParseFiles("./ui/html/base.tmpl")
 		if err != nil {
 			return nil, err
 		}
@@ -30,7 +54,6 @@ func newTemplateCache() (map[string]*template.Template, error) {
 			return nil, err
 		}
 
-		name := filepath.Base(page)
 		ts, err = ts.ParseFiles(page)
 		if err != nil {
 			return nil, err

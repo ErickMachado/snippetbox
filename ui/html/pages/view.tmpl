@@ -11,8 +11,8 @@
         <code>{{.Content}}</code>
       </pre>
       <div class="metadata">
-        <time>Created: {{.Created}}</time>
-        <time>Expires: {{.Expires}}</time>
+        <time>Created: {{.Created | brazillianDate | humanDate}}</time>
+        <time>Expires: {{.Expires | brazillianDate | humanDate}}</time>
       </div>
     </div>
   {{end}}
