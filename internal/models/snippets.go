@@ -6,6 +6,12 @@ import (
 	"time"
 )
 
+type SnippetModelInterface interface {
+	Insert(string, string, int) (int, error)
+	Get(int) (Snippet, error)
+	Latest() ([]Snippet, error)
+}
+
 type Snippet struct {
 	ID      int
 	Title   string
@@ -18,7 +24,7 @@ type SnippetModel struct {
 	DB *sql.DB
 }
 
-func (m *SnippetModel) Insert(title, content string, expires int) (int, error) {
+func (m SnippetModel) Insert(title, content string, expires int) (int, error) {
 	stmt := `
 		INSERT INTO snippets (
 			title,
@@ -46,7 +52,7 @@ func (m *SnippetModel) Insert(title, content string, expires int) (int, error) {
 	return int(id), nil
 }
 
-func (m *SnippetModel) Get(id int) (Snippet, error) {
+func (m SnippetModel) Get(id int) (Snippet, error) {
 	stmt := `
 		SELECT
 			id,
@@ -79,7 +85,7 @@ func (m *SnippetModel) Get(id int) (Snippet, error) {
 	return s, nil
 }
 
-func (m *SnippetModel) Latest() ([]Snippet, error) {
+func (m SnippetModel) Latest() ([]Snippet, error) {
 	stmt := `
 		SELECT
 			id,
